@@ -32,7 +32,7 @@ public class ClockPuzzle extends Puzzle {
 	private static final double arrowAngle = Math.PI / 2 - Math.acos( (double)arrowRadius / (double)arrowHeight );
 
 	private static final int gap = 5;
-	
+
 	@Override
 	public String getLongName() {
 		return "Clock";
@@ -62,7 +62,7 @@ public class ClockPuzzle extends Puzzle {
 	public HashMap<String, Color> getDefaultColorScheme() {
 		return new HashMap<String, Color>(defaultColorScheme);
 	}
-	private static final int[][] moves = { 
+	private static final int[][] moves = {
 		{0,1,1,0,1,1,0,0,0,  -1, 0, 0, 0, 0, 0, 0, 0, 0},// UR
 		{0,0,0,0,1,1,0,1,1,   0, 0, 0, 0, 0, 0,-1, 0, 0},// DR
 		{0,0,0,1,1,0,1,1,0,   0, 0, 0, 0, 0, 0, 0, 0,-1},// DL
@@ -167,7 +167,7 @@ public class ClockPuzzle extends Puzzle {
 	}
 
 	private class ClockState extends PuzzleState {
-		
+
 		private boolean[] pins;
 		private int[] posit;
 		public ClockState() {
@@ -183,7 +183,7 @@ public class ClockPuzzle extends Puzzle {
 		@Override
 		public HashMap<String, PuzzleState> getSuccessors() {
 			HashMap<String, PuzzleState> successors = new HashMap<String, PuzzleState>();
-			
+
 			for(int turn = 0; turn < turns.length; turn++) {
 				for(int rot = 0; rot < 12; rot++) {
 					// Apply the move
