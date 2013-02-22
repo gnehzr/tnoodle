@@ -312,9 +312,9 @@ public class CubePuzzle extends Puzzle {
 			int[][] stickersByPiece = getStickersByPiece(image);
 
 			int goal = 0;
-			goal |= Face.B.ordinal();
-			goal |= Face.L.ordinal();
-			goal |= Face.D.ordinal();
+			goal |= 1 << Face.B.ordinal();
+			goal |= 1 << Face.L.ordinal();
+			goal |= 1 << Face.D.ordinal();
 			int idx = -1;
 			for (int i = 0; i < stickersByPiece.length; i++) {
 				int t = 0;
