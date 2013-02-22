@@ -274,32 +274,61 @@ public class CubePuzzle extends Puzzle {
 		}
 		image = cloneImage(image);
 
-		// (x y)*3 places every face on U, and returns to where we started
-		int dir = 1;
-		Face[] cubeRotations = new Face[] { Face.R, Face.F, Face.R, Face.F, Face.R, Face.F };
+		while (!isNormalized(image)) {
+			int[][] stickersByPiece = getStickersByPiece(image);
 
-		for (Face face : cubeRotations) {
-			for (int rotU=0; rotU<4; rotU++){
-				if(isNormalized(image)) {
-					// Move the remaining slices we didn't move
-					// while searching for the normalization state (see next).
-					for (int sl=1; sl<size-1; sl++){
-						slice(Face.U, sl, rotU, image);
-					}
-					return image;
+			int goal = 0;
+			goal |= Face.B.ordinal();
+			goal |= Face.L.ordinal();
+			goal |= Face.D.ordinal();
+			int idx = -1;
+			for (int i = 0; i < stickersByPiece.length; i++) {
+				int t = 0;
+				for (int j = 0; j < stickersByPiece[i].length; j++) {
+					t |= 1 << stickersByPiece[i][j];
 				}
-				// Try all 4 front faces we could have on front
-				// We only have to slice outer layers to test normalization state.
-				slice(Face.U, 0, 1, image);
-				slice(Face.U, size-1, 1, image);
+				if (t == goal) {
+					idx = i;
+					break;
+				}
 			}
-
-			// Changing the U face.
-			spinCube(image, face, dir);
+			Face f = null;
+			int dir = 1;
+			if (stickersByPiece[idx][0] == Face.D.ordinal()) {
+				if (idx < 4) {
+					// on U
+					f = Face.F;
+					dir = 2;
+				} else {
+					// on D
+					f = Face.U;
+					switch(idx) {
+						case 4: dir = 2; break;
+						case 5: dir = 1; break;
+						case 6: dir = 3; break;
+					}
+				}
+			} else if (stickersByPiece[idx][1] == Face.D.ordinal()) {
+				switch (idx) {
+					case 0: case 6: f = Face.F; break; // on R
+					case 1: case 4: f = Face.L; break; // on F
+					case 2: case 7: f = Face.R; break; // on B
+					case 3: case 5: f = Face.B; break; // on L
+				}
+			} else {
+				switch (idx) {
+					case 2: case 4: f = Face.F; break; // on R
+					case 0: case 5: f = Face.L; break; // on F
+					case 3: case 6: f = Face.R; break; // on B
+					case 1: case 7: f = Face.B; break; // on L
+				}
+			}
+			if (f != null) {
+				spinCube(image, f, 1);
+			}
 		}
 
-		azzert(false);
-		return null;
+		return image;
 	}
 
 	private boolean isNormalized(int[][][] image) {
@@ -309,7 +338,21 @@ public class CubePuzzle extends Puzzle {
 				image[Face.D.ordinal()][size-1][0] == Face.D.ordinal();
 	}
 
-	public static CubeState extends PuzzleState {
+	private static int[][] getStickersByPiece(int[][][] img) {
+		return new int[][] {
+			{ img[Face.U.ordinal()][1][1], img[Face.R.ordinal()][0][0], img[Face.F.ordinal()][0][1] },
+			{ img[Face.U.ordinal()][1][0], img[Face.F.ordinal()][0][0], img[Face.L.ordinal()][0][1] },
+			{ img[Face.U.ordinal()][0][1], img[Face.B.ordinal()][0][0], img[Face.R.ordinal()][0][1] },
+			{ img[Face.U.ordinal()][0][0], img[Face.L.ordinal()][0][0], img[Face.B.ordinal()][0][1] },
+
+			{ img[Face.D.ordinal()][0][1], img[Face.F.ordinal()][1][1], img[Face.R.ordinal()][1][0] },
+			{ img[Face.D.ordinal()][0][0], img[Face.L.ordinal()][1][1], img[Face.F.ordinal()][1][0] },
+			{ img[Face.D.ordinal()][1][1], img[Face.R.ordinal()][1][1], img[Face.B.ordinal()][1][0] },
+			{ img[Face.D.ordinal()][1][0], img[Face.B.ordinal()][1][1], img[Face.L.ordinal()][1][0] }
+		};
+	}
+
+	public class CubeState extends PuzzleState {
 		private final int[][][] image;
 		private int[][][] normalizedImage = null;
 
@@ -339,17 +382,7 @@ public class CubePuzzle extends Puzzle {
 		public TwoByTwoState toTwoByTwoState() {
 			TwoByTwoState state = new TwoByTwoState();
 
-			int[][] stickersByPiece = new int[][] {
-				{ image[Face.U.ordinal()][1][1], image[Face.R.ordinal()][0][0], image[Face.F.ordinal()][0][1] },
-				{ image[Face.U.ordinal()][1][0], image[Face.F.ordinal()][0][0], image[Face.L.ordinal()][0][1] },
-				{ image[Face.U.ordinal()][0][1], image[Face.B.ordinal()][0][0], image[Face.R.ordinal()][0][1] },
-				{ image[Face.U.ordinal()][0][0], image[Face.L.ordinal()][0][0], image[Face.B.ordinal()][0][1] },
-
-				{ image[Face.D.ordinal()][0][1], image[Face.F.ordinal()][1][1], image[Face.R.ordinal()][1][0] },
-				{ image[Face.D.ordinal()][0][0], image[Face.L.ordinal()][1][1], image[Face.F.ordinal()][1][0] },
-				{ image[Face.D.ordinal()][1][1], image[Face.R.ordinal()][1][1], image[Face.B.ordinal()][1][0] },
-				{ image[Face.D.ordinal()][1][0], image[Face.B.ordinal()][1][1], image[Face.L.ordinal()][1][0] }
-			};
+			int[][] stickersByPiece = getStickersByPiece(img);
 
 			// Here's a clever color value assigning system that gives each piece
 			// a unique id just by summing up the values of its stickers.
