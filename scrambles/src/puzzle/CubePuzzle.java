@@ -121,7 +121,7 @@ public class CubePuzzle extends Puzzle {
 		}
 	}
 
-	private void swap(int[][][] image,
+	private static void swap(int[][][] image,
 			int f1, int x1, int y1,
 			int f2, int x2, int y2,
 			int f3, int x3, int y3,
@@ -151,7 +151,8 @@ public class CubePuzzle extends Puzzle {
 		}
 	}
 
-	private void slice(Face face, int slice, int dir, int[][][] image) {
+	private static void slice(Face face, int slice, int dir, int[][][] image) {
+		int size = image[0].length;
 		azzert(slice >= 0 && slice < size);
 
 		Face sface = face;
@@ -417,7 +418,7 @@ public class CubePuzzle extends Puzzle {
 		public TwoByTwoState toTwoByTwoState() {
 			TwoByTwoState state = new TwoByTwoState();
 
-			int[][] stickersByPiece = getStickersByPiece(img);
+			int[][] stickersByPiece = getStickersByPiece(image);
 
 			// Here's a clever color value assigning system that gives each piece
 			// a unique id just by summing up the values of its stickers.
