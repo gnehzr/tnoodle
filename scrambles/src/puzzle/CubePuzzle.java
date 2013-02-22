@@ -118,6 +118,36 @@ public class CubePuzzle extends Puzzle {
 		}
 	}
 
+	private void swap(int[][][] image,
+			int f1, int x1, int y1,
+			int f2, int x2, int y2,
+			int f3, int x3, int y3,
+			int f4, int x4, int y4,
+			int dir) {
+		if (dir == 1) {
+			int temp = image[f1][x1][y1];
+			image[f1][x1][y1] = image[f2][x2][y2];
+			image[f2][x2][y2] = image[f3][x3][y3];
+			image[f3][x3][y3] = image[f4][x4][y4];
+			image[f4][x4][y4] = temp;
+		} else if (dir == 2) {
+			int temp = image[f1][x1][y1];
+			image[f1][x1][y1] = image[f3][x3][y3];
+			image[f3][x3][y3] = temp;
+			temp = image[f2][x2][y2];
+			image[f2][x2][y2] = image[f4][x4][y4];
+			image[f4][x4][y4] = temp;
+		} else if (dir == 3) {
+			int temp = image[f4][x4][y4];
+			image[f4][x4][y4] = image[f3][x3][y3];
+			image[f3][x3][y3] = image[f2][x2][y2];
+			image[f2][x2][y2] = image[f1][x1][y1];
+			image[f1][x1][y1] = temp;
+		} else {
+			azzert(false);
+		}
+	}
+
 	private void slice(Face face, int slice, int dir, int[][][] image) {
 		azzert(slice >= 0 && slice < size);
 
@@ -130,29 +160,30 @@ public class CubePuzzle extends Puzzle {
 			sslice = size - 1 - slice;
 			sdir = 4 - dir;
 		}
-		for(int i = 0; i < sdir; i++) {
-			for(int j = 0; j < size; j++) {
-				if(sface.ordinal() == 0) {
-					int temp = image[Face.U.ordinal()][j][sslice];
-					image[Face.U.ordinal()][j][sslice] = image[Face.B.ordinal()][size-1-j][size-1-sslice];
-					image[Face.B.ordinal()][size-1-j][size-1-sslice] = image[Face.D.ordinal()][j][sslice];
-					image[Face.D.ordinal()][j][sslice] = image[Face.F.ordinal()][j][sslice];
-					image[Face.F.ordinal()][j][sslice] = temp;
-				}
-				else if(sface.ordinal() == 1) {
-					int temp = image[0][size-1-sslice][j];
-					image[Face.L.ordinal()][size-1-sslice][j] = image[Face.B.ordinal()][size-1-sslice][j];
-					image[Face.B.ordinal()][size-1-sslice][j] = image[Face.R.ordinal()][size-1-sslice][j];
-					image[Face.R.ordinal()][size-1-sslice][j] = image[Face.F.ordinal()][size-1-sslice][j];
-					image[Face.F.ordinal()][size-1-sslice][j] = temp;
-				}
-				else if(sface.ordinal() == 2) {
-					int temp = image[Face.U.ordinal()][sslice][j];
-					image[Face.U.ordinal()][sslice][j] = image[Face.R.ordinal()][j][size-1-sslice];
-					image[Face.R.ordinal()][j][size-1-sslice] = image[Face.D.ordinal()][size-1-sslice][size-1-j];
-					image[Face.D.ordinal()][size-1-sslice][size-1-j] = image[Face.L.ordinal()][size-1-j][sslice];
-					image[Face.L.ordinal()][size-1-j][sslice] = temp;
-				}
+		for(int j = 0; j < size; j++) {
+			if(sface.ordinal() == 0) {
+				swap(image,
+						Face.U.ordinal(), j, sslice,
+						Face.B.ordinal(), size-1-j, size-1-sslice,
+						Face.D.ordinal(), j, sslice,
+						Face.F.ordinal(), j, sslice,
+						sdir);
+			}
+			else if(sface.ordinal() == 1) {
+				swap(image,
+						Face.L.ordinal(), size-1-sslice, j,
+						Face.B.ordinal(), size-1-sslice, j,
+						Face.R.ordinal(), size-1-sslice, j,
+						Face.F.ordinal(), size-1-sslice, j,
+						sdir);
+			}
+			else if(sface.ordinal() == 2) {
+				swap(image,
+						Face.U.ordinal(), sslice, j,
+						Face.R.ordinal(), j, size-1-sslice,
+						Face.D.ordinal(), size-1-sslice, size-1-j,
+						Face.L.ordinal(), size-1-j, sslice,
+						sdir);
 			}
 		}
 		if(slice == 0 || slice == size - 1) {
@@ -167,15 +198,14 @@ public class CubePuzzle extends Puzzle {
 				azzert(false);
 				return;
 			}
-			for(int i = 0; i < sdir; i++) {
-				for(int j = 0; j < (size+1)/2; j++) {
-					for(int k = 0; k < size/2; k++) {
-						int temp = image[f][j][k];
-						image[f][j][k] = image[f][k][size-1-j];
-						image[f][k][size-1-j] = image[f][size-1-j][size-1-k];
-						image[f][size-1-j][size-1-k] = image[f][size-1-k][j];
-						image[f][size-1-k][j] = temp;
-					}
+			for(int j = 0; j < (size+1)/2; j++) {
+				for(int k = 0; k < size/2; k++) {
+					swap(image,
+							f, j, k,
+							f, k, size-1-j,
+							f, size-1-j, size-1-k,
+							f, size-1-k, j,
+							sdir);
 				}
 			}
 		}
@@ -306,6 +336,7 @@ public class CubePuzzle extends Puzzle {
 						case 4: dir = 2; break;
 						case 5: dir = 1; break;
 						case 6: dir = 3; break;
+						default: azzert(false);
 					}
 				}
 			} else if (stickersByPiece[idx][1] == Face.D.ordinal()) {
@@ -314,6 +345,7 @@ public class CubePuzzle extends Puzzle {
 					case 1: case 4: f = Face.L; break; // on F
 					case 2: case 7: f = Face.R; break; // on B
 					case 3: case 5: f = Face.B; break; // on L
+					default: azzert(false);
 				}
 			} else {
 				switch (idx) {
@@ -321,11 +353,10 @@ public class CubePuzzle extends Puzzle {
 					case 0: case 5: f = Face.L; break; // on F
 					case 3: case 6: f = Face.R; break; // on B
 					case 1: case 7: f = Face.B; break; // on L
+					default: azzert(false);
 				}
 			}
-			if (f != null) {
-				spinCube(image, f, 1);
-			}
+			spinCube(image, f, 1);
 		}
 
 		return image;
@@ -339,16 +370,17 @@ public class CubePuzzle extends Puzzle {
 	}
 
 	private static int[][] getStickersByPiece(int[][][] img) {
+		int s = img[0].length - 1;
 		return new int[][] {
-			{ img[Face.U.ordinal()][1][1], img[Face.R.ordinal()][0][0], img[Face.F.ordinal()][0][1] },
-			{ img[Face.U.ordinal()][1][0], img[Face.F.ordinal()][0][0], img[Face.L.ordinal()][0][1] },
-			{ img[Face.U.ordinal()][0][1], img[Face.B.ordinal()][0][0], img[Face.R.ordinal()][0][1] },
-			{ img[Face.U.ordinal()][0][0], img[Face.L.ordinal()][0][0], img[Face.B.ordinal()][0][1] },
+			{ img[Face.U.ordinal()][s][s], img[Face.R.ordinal()][0][0], img[Face.F.ordinal()][0][s] },
+			{ img[Face.U.ordinal()][s][0], img[Face.F.ordinal()][0][0], img[Face.L.ordinal()][0][s] },
+			{ img[Face.U.ordinal()][0][s], img[Face.B.ordinal()][0][0], img[Face.R.ordinal()][0][s] },
+			{ img[Face.U.ordinal()][0][0], img[Face.L.ordinal()][0][0], img[Face.B.ordinal()][0][s] },
 
-			{ img[Face.D.ordinal()][0][1], img[Face.F.ordinal()][1][1], img[Face.R.ordinal()][1][0] },
-			{ img[Face.D.ordinal()][0][0], img[Face.L.ordinal()][1][1], img[Face.F.ordinal()][1][0] },
-			{ img[Face.D.ordinal()][1][1], img[Face.R.ordinal()][1][1], img[Face.B.ordinal()][1][0] },
-			{ img[Face.D.ordinal()][1][0], img[Face.B.ordinal()][1][1], img[Face.L.ordinal()][1][0] }
+			{ img[Face.D.ordinal()][0][s], img[Face.F.ordinal()][s][s], img[Face.R.ordinal()][s][0] },
+			{ img[Face.D.ordinal()][0][0], img[Face.L.ordinal()][s][s], img[Face.F.ordinal()][s][0] },
+			{ img[Face.D.ordinal()][s][s], img[Face.R.ordinal()][s][s], img[Face.B.ordinal()][s][0] },
+			{ img[Face.D.ordinal()][s][0], img[Face.B.ordinal()][s][s], img[Face.L.ordinal()][s][0] }
 		};
 	}
 
