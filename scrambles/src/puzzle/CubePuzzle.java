@@ -7,8 +7,10 @@ import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.geom.GeneralPath;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Random;
 
 import puzzle.TwoByTwoSolver.TwoByTwoState;
@@ -24,19 +26,19 @@ import cs.min2phase.Search;
 import cs.min2phase.Tools;
 
 public class CubePuzzle extends Puzzle {
-    private static final int THREE_BY_THREE_MAX_SCRAMBLE_LENGTH = 21;
-    private static final int THREE_BY_THREE_TIMEMIN = 200; //milliseconds
-    private static final int THREE_BY_THREE_TIMEOUT = 5*1000; //milliseconds
+	private static final int THREE_BY_THREE_MAX_SCRAMBLE_LENGTH = 21;
+	private static final int THREE_BY_THREE_TIMEMIN = 200; //milliseconds
+	private static final int THREE_BY_THREE_TIMEOUT = 5*1000; //milliseconds
 
-    private static final int TWO_BY_TWO_MIN_SCRAMBLE_LENGTH = 11;
+	private static final int TWO_BY_TWO_MIN_SCRAMBLE_LENGTH = 11;
 
-    private static enum Face {
-    	L, D, B, R, U, F;
+	private static enum Face {
+		L, D, B, R, U, F;
 
 		public Face oppositeFace() {
 			return values()[(ordinal() + 3) % 6];
 		}
-    }
+	}
 
 	private static final int gap = 2;
 	private static final int cubieSize = 10;
@@ -46,6 +48,7 @@ public class CubePuzzle extends Puzzle {
 	private TwoByTwoSolver twoSolver = null;
 	private ThreadLocal<Search> twoPhaseSearcher = null;
 	private ThreadLocal<cs.threephase.Search> threePhaseSearcher = null;
+
 	public CubePuzzle(int size) {
 		azzert(size >= 0 && size < DEFAULT_LENGTHS.length, "Invalid cube size");
 		this.size = size;
@@ -538,6 +541,5 @@ public class CubePuzzle extends Puzzle {
 		protected void drawScramble(Graphics2D g, HashMap<String, Color> colorScheme) {
 			drawCube(g, image, gap, cubieSize, colorScheme);
 		}
-
 	}
 }

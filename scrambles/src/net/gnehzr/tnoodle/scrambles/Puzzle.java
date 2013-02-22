@@ -129,7 +129,7 @@ public abstract class Puzzle {
 		return scrambles;
 	}
 
-    private SecureRandom r = getSecureRandom();
+	private SecureRandom r = getSecureRandom();
 	private static final SecureRandom getSecureRandom() {
 		try {
 			return SecureRandom.getInstance("SHA1PRNG", "SUN");
