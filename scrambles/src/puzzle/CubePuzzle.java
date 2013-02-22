@@ -520,22 +520,7 @@ public class CubePuzzle extends Puzzle {
 
 		@Override
 		public int hashCode() {
-			int hash = 0;
-			for(int f = 0; f < 6; f++) {
-				List<Integer> list = new ArrayList<Integer>();
-				for(int j = 0; j < (size+1)/2; j++) {
-					for(int k = 0; k < size/2; k++) {
-						int t = 0;
-						t += image[f][j][k];
-						t += image[f][k][size-1-j];
-						t += image[f][size-1-j][size-1-k];
-						t += image[f][size-1-k][j];
-						list.add(t);
-					}
-				}
-				hash += list.hashCode();
-			}
-			return hash;
+			return Arrays.deepHashCode(getNormalized());
 		}
 
 		@Override
